@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from .request_sending import send_post_request, send_get_request, send_put_request, send_delete_request
+from .request_sending import *
 from .server_port import PORT
 from .user_data import *
 
@@ -11,29 +11,10 @@ from datetime import datetime
 class ReviewTest(unittest.TestCase):
     passenger_id = None
     passenger_body = None
+    review_body = None
 
     @classmethod
     def setUpClass(cls):
-        cls.driver_review = {
-          "rating": 3,
-          "comment": "The driver was driving really fast",
-          "passenger": {
-            "id": PASSENGER_ID,
-            "email": PASSENGER_EMAIL
-          }
-        }
-        cls.vehicle_review = {
-            "rating": 3,
-            "comment": "The vehicle was bad and dirty",
-            "passenger": {
-                "id": PASSENGER_ID,
-                "email": PASSENGER_EMAIL
-            }
-        }
-        response = send_get_request(url=f'http://localhost:{PORT}/api/passenger/{PASSENGER_ID}')
-        response_body = response.json()
-        cls.user_id = response_body['id']
-        cls.user_body = response_body
         time.sleep(1)
         passenger_login_data = {
             'email': PASSENGER_EMAIL,
@@ -85,29 +66,6 @@ class ReviewTest(unittest.TestCase):
         time.sleep(1)
         send_put_request(data=request_body, url=f'http://localhost:{PORT}/api/ride/{cls.ride_id}/end', jwt=driver)
         time.sleep(1)
-        response = send_get_request(url=f'http://localhost:{PORT}/api/ride/{cls.ride_id}', jwt=passenger)
-        response_body = response.json()
-        response_body.pop('status')
-        cls.ride_body = response_body
-        time.sleep(1)
-        vehicle_data = {
-            "vehicleType": "STANDARD",
-            "model": "VW Golf 2",
-            "licenseNumber": "NS 123-AB",
-            "currentLocation": {
-                "address": "Bulevar oslobodjenja 46",
-                "latitude": 45.267136,
-                "longitude": 19.833549
-            },
-            "passengerSeats": 4,
-            "babyTransport": True,
-            "petTransport": True
-        }
-        response = send_post_request(
-            data=vehicle_data,
-            url=f'http://localhost:{PORT}/api/driver/{cls.driver_id}/vehicle',
-        )
-        cls.vehicle_id = response.json()['id']
 
     def setUp(self):
         time.sleep(1)
@@ -124,7 +82,6 @@ class ReviewTest(unittest.TestCase):
         }
         response = send_post_request(data=admin_login_data, url=f'http://localhost:{PORT}/api/user/login')
         self.admin = response.json()['accessToken']
-
         driver_login_data = {
             'email': DRIVER_EMAIL,
             'password': DRIVER_PASSWORD
@@ -132,7 +89,6 @@ class ReviewTest(unittest.TestCase):
         response = send_post_request(data=driver_login_data, url=f'http://localhost:{PORT}/api/user/login')
         self.driver = response.json()['accessToken']
 
-    # Vehicle review
     def test_01_post_vehicle_review_unauthorized(self):
         data = {
           "rating": 3,
@@ -148,98 +104,99 @@ class ReviewTest(unittest.TestCase):
         }
         response = send_post_request(url=f'{self.base_path}/321/vehicle', data=data)
         self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.text, 'Ride does not exist!')
 
-    def test_03_post_vehicle_review_passenger_not_in_ride(self):
+    def test_03_post_vehicle_review(self):
         data = {
             "rating": 3,
-            "comment": "The vehicle was bad and dirty"
+            "comment": "The driver was driving really fast"
         }
-        response = send_post_request(url=f'{self.base_path}/{self.ride_id}/vehicle', data=data, jwt=self.driver)
-        self.assertEqual(response.status_code, 403)
-
-    def test_04_post_vehicle_review_user(self):
-        data = {
-            "rating": 3,
-            "comment": "The vehicle was bad and dirty"
-        }
-        response = send_post_request(url=f'{self.base_path}/{self.ride_id}/vehicle', data=data, jwt=self.passenger)
+        response = send_post_request(url=f'{self.base_path}/{self.__class__.ride_id}/vehicle', data=data, jwt=self.passenger)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        self.vehicle_review['id'] = response_data['id']
-        # Removed in Python 3.11
-        self.assertDictContainsSubset(self.vehicle_review, data)
+        self.__class__.review_body = response_data
+        self.assertEqual('id' in response_data, True)
+        self.assertEqual(response_data['rating'], data['rating'])
+        self.assertEqual(response_data['comment'], data['comment'])
+        self.assertEqual(response_data['passenger']['id'], PASSENGER_ID)
+        self.assertEqual(response_data['passenger']['email'], PASSENGER_EMAIL)
 
-    def test_05_get_vehicle_reviews_unauthorized(self):
-        response = send_get_request(url=f'{self.base_path}/{self.ride_id}/vehicle')
+    def test_04_get_vehicle_reviews_unauthorized(self):
+        response = send_get_request(url=f'{self.base_path}/vehicle/{self.__class__.ride_id}')
         self.assertEqual(response.status_code, 401)
 
-    def test_06_get_vehicle_reviews_unexisting_ride(self):
-        response = send_get_request(url=f'{self.base_path}/321/vehicle')
+    def test_05_get_vehicle_reviews_unexisting_ride(self):
+        response = send_get_request(url=f'{self.base_path}/vehicle/321', jwt=self.passenger)
         self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.text, 'Vehicle does not exist!')
 
-    def test_07_get_vehicle_reviews(self):
-        response = send_get_request(url=f'{self.base_path}/{self.ride_id}/vehicle', jwt=self.passenger)
+    def test_06_get_vehicle_reviews(self):
+        response = send_get_request(url=f'{self.base_path}/vehicle/{self.__class__.ride_id}', jwt=self.passenger)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        # Will fail if the response has extra fields
-        self.assertTrue(self.vehicle_review in response_data)
+        self.assertTrue(self.__class__.review_body in response_data['results'])
 
-    # Driver reviews
-    def test_08_post_driver_review_unauthorized(self):
+    def test_07_post_driver_review_unauthorized(self):
         data = {
           "rating": 3,
           "comment": "The driver was driving really fast"
         }
-        response = send_post_request(url=f'{self.base_path}/{self.ride_id}/driver', data=data)
+        response = send_post_request(url=f'{self.base_path}/{self.__class__.ride_id}/driver', data=data)
         self.assertEqual(response.status_code, 401)
 
-    def test_09_post_driver_review_unexisting_ride(self):
+    def test_08_post_driver_review_unexisting_ride(self):
         data = {
           "rating": 3,
           "comment": "The driver was driving really fast"
         }
         response = send_post_request(url=f'{self.base_path}/321/driver', data=data)
         self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.text, 'Ride does not exist!')
 
-    def test_10_post_driver_review_passenger_not_in_ride(self):
+    def test_09_post_driver_review_user(self):
         data = {
           "rating": 3,
           "comment": "The driver was driving really fast"
         }
-        response = send_post_request(url=f'{self.base_path}/{self.ride_id}/driver', data=data, jwt=self.driver)
-        self.assertEqual(response.status_code, 403)
-
-    def test_11_post_driver_review_user(self):
-        data = {
-          "rating": 3,
-          "comment": "The driver was driving really fast"
-        }
-        response = send_post_request(url=f'{self.base_path}/{self.ride_id}/driver', data=data, jwt=self.passenger)
+        response = send_post_request(url=f'{self.base_path}/{self.__class__.ride_id}/driver', data=data, jwt=self.passenger)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        self.driver_review['id'] = response_data['id']
-        # Removed in Python 3.11
-        self.assertDictContainsSubset(self.driver_review, data)
+        self.__class__.review_body = response_data
+        self.assertEqual('id' in response_data, True)
+        self.assertEqual(response_data['rating'], data['rating'])
+        self.assertEqual(response_data['comment'], data['comment'])
+        self.assertEqual(response_data['passenger']['id'], PASSENGER_ID)
+        self.assertEqual(response_data['passenger']['email'], PASSENGER_EMAIL)
+
+    def test_10_get_driver_reviews_unauthorized(self):
+        response = send_get_request(url=f'{self.base_path}/driver/{self.__class__.ride_id}')
+        self.assertEqual(response.status_code, 401)
+
+    def test_11_get_driver_reviews_unexisting_ride(self):
+        response = send_get_request(url=f'{self.base_path}/driver/321', jwt=self.passenger)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.text, 'Driver does not exist!')
 
     def test_12_get_driver_reviews(self):
-        response = send_get_request(url=f'{self.base_path}/{self.ride_id}/driver', jwt=self.passenger)
+        response = send_get_request(url=f'{self.base_path}/driver/{self.__class__.ride_id}', jwt=self.passenger)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        # Will fail if the response has extra fields
-        self.assertTrue(self.driver_review in response_data)
+        self.assertTrue(self.__class__.review_body in response_data['results'])
 
-    # Ride reviews
     def test_13_get_ride_reviews_unauthorized(self):
-        response = send_get_request(url=f'{self.base_path}/{self.ride_id}/vehicle')
+        response = send_get_request(url=f'{self.base_path}/{self.ride_id}')
         self.assertEqual(response.status_code, 401)
 
     def test_14_get_ride_reviews_unexisting_ride(self):
-        response = send_get_request(url=f'{self.base_path}/{self.ride_id}')
+        response = send_get_request(url=f'{self.base_path}/123456', jwt=self.passenger)
         self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.text, 'Ride does not exist!')
 
     def test_15_get_ride_reviews(self):
-        response = send_get_request(url=f'{self.base_path}/{self.ride_id}', jwt=self.passenger)
+        response = send_get_request(url=f'{self.base_path}/{self.__class__.ride_id}', jwt=self.passenger)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
-        self.assertIn(self.vehicle_review, response_data)
-        self.assertIn(self.driver_review, response_data)
+        self.assertEqual(response_data[0]['driverReview']['rating'], self.__class__.review_body['rating'])
+        self.assertEqual(response_data[0]['driverReview']['comment'], self.__class__.review_body['comment'])
+        self.assertEqual(response_data[0]['driverReview']['passenger']['id'], PASSENGER_ID)
+        self.assertEqual(response_data[0]['driverReview']['passenger']['email'], PASSENGER_EMAIL)
