@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from .request_sending import send_post_request, send_get_request, send_put_request, send_delete_request
+from .request_sending import *
 from .server_port import PORT
 from .user_data import *
 

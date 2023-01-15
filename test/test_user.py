@@ -348,8 +348,8 @@ class UserTest(unittest.TestCase):
         self.assertEqual('timeOfSending' in response_body, True)
         self.assertEqual(response_body['senderId'], PASSENGER_ID)
         self.assertEqual(response_body['receiverId'], ADMIN_ID)
-        self.assertEqual(response_body['message'], 'Some message')
-        self.assertEqual(response_body['type'], 'RIDE')
+        self.assertEqual(response_body['message'], request_body['message'])
+        self.assertEqual(response_body['type'], request_body['type'])
         self.assertEqual(response_body['rideId'], RIDE_ID_FOR_MESSAGES)
         self.__class__.message_id = response_body['id']
         self.__class__.message_body = response_body
@@ -401,7 +401,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_40_unblock_user_not_exist(self):
-        response = send_put_request(data=None, url=f'{self.base_path}/12345678/block', jwt=self.admin)
+        response = send_put_request(data=None, url=f'{self.base_path}/12345678/unblock', jwt=self.admin)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
@@ -461,7 +461,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual('id' in response_body, True)
         self.assertEqual('date' in response_body, True)
-        self.assertEqual(response_body['message'], 'Some note')
+        self.assertEqual(response_body['message'], request_body['message'])
         self.__class__.note_id = response_body['id']
         self.__class__.note_body = response_body
 

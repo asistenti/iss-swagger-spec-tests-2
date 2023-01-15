@@ -575,10 +575,202 @@ class RideTest(unittest.TestCase):
         self.assertEqual(response_body['status'], 'CANCELED')
         self.assertEqual('scheduledTime' in response_body, True)
 
-        response = send_put_request(data=None, url=f'{self.base_path}/{response_body["id"]}/withdraw', jwt=driver)
+        response = send_put_request(data=None, url=f'{self.base_path}/{response_body["id"]}/withdraw', jwt=self.passenger)
         response_body = response.json()
         self.assertEqual(response.status_code, 400)
         self.assertEqual('Cannot cancel a ride that' in response_body['message'], True)
-        
 
+    def test_38_panic_procedure_ride_unauthorized(self):
+        response = send_put_request(data=None, url=f'{self.base_path}/{self.__class__.ride_id}/panic')
+        self.assertEqual(response.status_code, 401)
+
+    def test_39_panic_procedure_ride_forbidden(self):
+        response = send_put_request(data=None, url=f'{self.base_path}/{self.__class__.ride_id}/panic', jwt=self.admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_40_panic_procedure_ride_not_exist(self):
+        response = send_put_request(data=None, url=f'{self.base_path}/1234567/panic', jwt=self.passenger)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.text, 'Ride does not exist!')
+
+    def test_41_panic_procedure(self):
+        request_body = {
+            'locations': [
+                {
+                    'departure': {
+                        'address': 'Andje Rankovic 2',
+                        'latitude': 45.247309,
+                        'longitude': 19.796717
+                    },
+                    'destination': {
+                        'address': 'Bele njive 24',
+                        'latitude': 45.265435,
+                        'longitude': 19.847805
+                    }
+                }
+            ],
+            'passengers': [
+                {
+                    'id': PASSENGER_ATTACHED_TO_RIDE_ID,
+                    'email': PASSENGER_ATTACHED_TO_RIDE_EMAIL
+                }
+            ],
+            'vehicleType': 'STANDARD',
+            'babyTransport': True,
+            'petTransport': True,
+            'scheduleTime': None
+        }
+        response = send_post_request(data=request_body, url=f'{self.base_path}', jwt=self.passenger)
+        self.assertEqual(response.status_code, 200)
+        response_body = response.json()
+        time.sleep(1)
+        request_body = {
+            'reason': 'Driver is constantly listening to bad music!'
+        }
+        response = send_put_request(data=request_body, url=f'{self.base_path}/{response_body["id"]}/panic', jwt=self.passenger)
+        response_body = response.json()
+        self.assertEqual('id' in response_body, True)
+        self.assertEqual('user' in response_body, True)
+        self.assertEqual('ride' in response_body, True)
+        self.assertEqual('time' in response_body, True)
+        self.assertEqual(response_body['reason'], 'Driver is constantly listening to bad music!')
+
+    def test_42_favorite_locations_unauthorized(self):
+        request_body = None
+        response = send_post_request(data=request_body, url=f'{self.base_path}/favorites')
+        self.assertEqual(response.status_code, 401)
+
+    def test_43_favorite_locations_forbidden(self):
+        request_body = None
+        response = send_post_request(data=request_body, url=f'{self.base_path}/favorites', jwt=self.admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_44_favorite_locations_invalid_inputs(self):
+        request_body = {
+            'favoriteName': 'Home - to - Work',
+            'locations': [
+                {
+                    'departure': {
+                        'address': 'Andje Rankovic 2',
+                        'latitude': 91,
+                        'longitude': 181
+                    },
+                    'destination': {
+                        'address': 'Bele njive 24',
+                        'latitude': -181,
+                        'longitude': -91
+                    }
+                }
+            ],
+            'passengers': [
+                {
+                    'id': 'aaaaaa',
+                    'email': 'aaaaaaa'
+                }
+            ],
+            'vehicleType': 'STANDARD123',
+            'babyTransport': '123',
+            'petTransport': '123',
+        }
+        response = send_post_request(data=request_body, url=f'{self.base_path}/favorites', jwt=self.passenger)
+        self.assertEqual(response.status_code, 400)
+
+    def test_45_favorite_locations_none_inputs(self):
+        request_body = {
+            'favoriteName': None,
+            'locations': [
+                {
+                    'departure': None,
+                    'destination': None
+                }
+            ],
+            'passengers': [
+                {
+                    'id': None,
+                    'email': None
+                }
+            ],
+            'vehicleType': None,
+            'babyTransport': None,
+            'petTransport': None
+        }
+        response = send_post_request(data=request_body, url=f'{self.base_path}/favorites', jwt=self.passenger)
+        self.assertEqual(response.status_code, 400)
+
+    def test_46_favorite_locations(self):
+        request_body = {
+            'favoriteName': 'Home - to - Work',
+            'locations': [
+                {
+                    'departure': {
+                        'address': 'Andje Rankovic 2',
+                        'latitude': 45.247309,
+                        'longitude': 19.796717
+                    },
+                    'destination': {
+                        'address': 'Bele njive 24',
+                        'latitude': 45.265435,
+                        'longitude': 19.847805
+                    }
+                }
+            ],
+            'passengers': [
+                {
+                    'id': PASSENGER_ATTACHED_TO_RIDE_ID,
+                    'email': PASSENGER_ATTACHED_TO_RIDE_EMAIL
+                }
+            ],
+            'vehicleType': 'STANDARD',
+            'babyTransport': True,
+            'petTransport': True
+        }
+        response = send_post_request(data=request_body, url=f'{self.base_path}/favorites', jwt=self.passenger)
+        self.assertEqual(response.status_code, 200)
+        response_body = response.json()
+        self.__class__.ride_id = response_body['id']
+        self.__class__.ride_body = response_body
+        self.assertEqual('id' in response_body, True)
+        self.assertEqual(len(response_body['passengers']), 2)
+        self.assertEqual(response_body['favoriteName'], 'Home - to - Work')
+        self.assertEqual(response_body['vehicleType'], 'STANDARD')
+        self.assertEqual(response_body['babyTransport'], True)
+        self.assertEqual(response_body['petTransport'], True)
+        self.assertEqual(response_body['locations'][0]['departure']['address'], 'Andje Rankovic 2')
+        self.assertEqual(response_body['locations'][0]['departure']['latitude'], 45.247309)
+        self.assertEqual(response_body['locations'][0]['departure']['longitude'], 19.796717)
+        self.assertEqual(response_body['locations'][0]['destination']['address'], 'Bele njive 24')
+        self.assertEqual(response_body['locations'][0]['destination']['latitude'], 45.265435)
+        self.assertEqual(response_body['locations'][0]['destination']['longitude'], 19.847805)
+
+    def test_47_get_favorites_unauthorized(self):
+        response = send_get_request(url=f'{self.base_path}/favorites')
+        self.assertEqual(response.status_code, 401)
+
+    def test_48_get_favorites_forbidden(self):
+        response = send_get_request(url=f'{self.base_path}/favorites', jwt=self.admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_49_get_favorites(self):
+        response = send_get_request(url=f'{self.base_path}/favorites', jwt=self.passenger)
+        response_body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.__class__.ride_body in response_body, True)
+
+    def test_50_delete_favorites_unauthorized(self):
+        response = send_delete_request(url=f'{self.base_path}/favorites/{self.__class__.ride_id}')
+        self.assertEqual(response.status_code, 401)
+
+    def test_51_delete_favorites_forbidden(self):
+        response = send_delete_request(url=f'{self.base_path}/favorites/{self.__class__.ride_id}', jwt=self.admin)
+        self.assertEqual(response.status_code, 403)
+
+    def test_52_delete_favorites_not_exist(self):
+        response = send_delete_request(url=f'{self.base_path}/favorites/1234456', jwt=self.admin)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.text, 'Favorite location does not exist!')
+
+    def test_53_delete_favorites(self):
+        response = send_delete_request(url=f'{self.base_path}/favorites/{self.__class__.ride_id}', jwt=self.admin)
+        self.assertEqual(response.status_code, 204)
+    
     
