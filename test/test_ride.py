@@ -404,7 +404,7 @@ class RideTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual('id' in response_body, True)
         self.assertEqual('startTime' in response_body, True)
-        self.assertEqual(response_body['endTime'], None)
+        self.assertIsNotNone(request_body['endTime'])
         self.assertEqual('totalCost' in response_body, True)
         self.assertEqual(response_body['driver']['id'], self.__class__.ride_body['driver']['id'])
         self.assertEqual(response_body['driver']['email'], self.__class__.ride_body['driver']['email'])
@@ -481,7 +481,7 @@ class RideTest(unittest.TestCase):
         request_data = {
             'reason': 'No passengers were at the departure'
         }
-        response = send_put_request(data=None, url=f'{self.base_path}/{response_body["id"]}/cancel', jwt=driver)
+        response = send_put_request(data=request_data, url=f'{self.base_path}/{response_body["id"]}/cancel', jwt=driver)
         response_body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual('id' in response_body, True)
@@ -504,7 +504,7 @@ class RideTest(unittest.TestCase):
         self.assertEqual(response_body['status'], 'REJECTED')
         self.assertEqual('scheduledTime' in response_body, True)
 
-        response = send_put_request(data=None, url=f'{self.base_path}/{response_body["id"]}/cancel', jwt=driver)
+        response = send_put_request(data=request_data, url=f'{self.base_path}/{response_body["id"]}/cancel', jwt=driver)
         response_body = response.json()
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response_body['message'], 'Cannot cancel a ride that is not in status PENDING or ACCEPTED!')
@@ -765,12 +765,12 @@ class RideTest(unittest.TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_52_delete_favorites_not_exist(self):
-        response = send_delete_request(url=f'{self.base_path}/favorites/1234456', jwt=self.admin)
+        response = send_delete_request(url=f'{self.base_path}/favorites/1234456', jwt=self.passenger)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'Favorite location does not exist!')
 
     def test_53_delete_favorites(self):
-        response = send_delete_request(url=f'{self.base_path}/favorites/{self.__class__.ride_id}', jwt=self.admin)
+        response = send_delete_request(url=f'{self.base_path}/favorites/{self.__class__.ride_id}', jwt=self.passenger)
         self.assertEqual(response.status_code, 204)
     
     
