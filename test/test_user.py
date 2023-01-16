@@ -119,7 +119,15 @@ class UserTest(unittest.TestCase):
         response = send_put_request(data=request_body, url=f'{self.base_path}/{self.__class__.user_id}/changePassword', jwt=self.passenger)
         self.assertEqual(response.status_code, 204)
 
-    def test_04_change_password_invalid_inputs(self):
+    def test_04_change_password_to_old_value(self):
+        request_body = {
+            'newPassword': 'NekaSifra123',
+            'oldPassword': 'NekaSifra456'
+        }
+        response = send_put_request(data=request_body, url=f'{self.base_path}/{self.__class__.user_id}/changePassword', jwt=self.passenger)
+        self.assertEqual(response.status_code, 204)
+
+    def test_05_change_password_invalid_inputs(self):
         request_body = {
             'newPassword': 'sifra',
             'oldPassword': 'sifra'
@@ -127,7 +135,7 @@ class UserTest(unittest.TestCase):
         response = send_put_request(data=request_body, url=f'{self.base_path}/{self.__class__.user_id}/changePassword', jwt=self.passenger)
         self.assertEqual(response.status_code, 400)
 
-    def test_05_change_password_none_inputs(self):
+    def test_06_change_password_none_inputs(self):
         request_body = {
             'newPassword': None,
             'oldPassword': None
@@ -135,7 +143,7 @@ class UserTest(unittest.TestCase):
         response = send_put_request(data=request_body, url=f'{self.base_path}/{self.__class__.user_id}/changePassword', jwt=self.passenger)
         self.assertEqual(response.status_code, 400)
 
-    def test_06_change_password_user_not_exist(self):
+    def test_07_change_password_user_not_exist(self):
         request_body = {
             'newPassword': 'NekaSifra456',
             'oldPassword': 'NekaSifra123'
@@ -144,16 +152,16 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_07_reset_password(self):
+    def test_08_reset_password(self):
         response = send_get_request(url=f'{self.base_path}/{self.__class__.user_id}/resetPassword')
         self.assertEqual(response.status_code, 204)
 
-    def test_08_reset_password_user_not_exist(self):
+    def test_09_reset_password_user_not_exist(self):
         response = send_get_request(url=f'{self.base_path}/456789/resetPassword')
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_09_reset_password_code_expired(self):
+    def test_10_reset_password_code_expired(self):
         request_body = {
             'code': PASSWORD_RESET_CODE_EXPIRED,
             'newPassword': 'NekaSifra789'
@@ -163,7 +171,7 @@ class UserTest(unittest.TestCase):
         response_body = response.json()
         self.assertEqual(response_body['message'], 'Code is expired or not correct!')
 
-    def test_10_reset_password_user_not_exist(self):
+    def test_11_reset_password_user_not_exist(self):
         request_body = {
             'code': PASSWORD_RESET_CODE,
             'newPassword': 'NekaSifra789'
@@ -172,7 +180,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_11_reset_password(self):
+    def test_12_reset_password(self):
         request_body = {
             'code': PASSWORD_RESET_CODE,
             'newPassword': 'NekaSifra789'
@@ -180,7 +188,7 @@ class UserTest(unittest.TestCase):
         response = send_put_request(data=request_body, url=f'{self.base_path}/{self.__class__.user_id}/resetPassword')
         self.assertEqual(response.status_code, 204)
 
-    def test_12_rides_of_user_unauthorized(self):
+    def test_13_rides_of_user_unauthorized(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -188,7 +196,7 @@ class UserTest(unittest.TestCase):
         response = send_get_request(url=f'{self.base_path}/{self.__class__.user_id}/ride', query_params=query_params)
         self.assertEqual(response.status_code, 401)
 
-    def test_13_rides_of_user_forbidden(self):
+    def test_14_rides_of_user_forbidden(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -196,7 +204,7 @@ class UserTest(unittest.TestCase):
         response = send_get_request(url=f'{self.base_path}/{self.__class__.user_id}/ride', query_params=query_params, jwt=self.passenger)
         self.assertEqual(response.status_code, 403)
 
-    def test_14_rides_of_user_not_exist(self):
+    def test_15_rides_of_user_not_exist(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -205,7 +213,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_15_rides_of_user(self):
+    def test_16_rides_of_user(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -215,7 +223,7 @@ class UserTest(unittest.TestCase):
         response_body = response.json()
         self.assertTrue(self.__class__.ride_body in response_body['results'])
     
-    def test_16_getting_users_unauthorized(self):
+    def test_17_getting_users_unauthorized(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -223,7 +231,7 @@ class UserTest(unittest.TestCase):
         response = send_get_request(url=f'{self.base_path}', query_params=query_params)
         self.assertEqual(response.status_code, 401)
 
-    def test_17_getting_users_forbidden(self):
+    def test_18_getting_users_forbidden(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -231,7 +239,7 @@ class UserTest(unittest.TestCase):
         response = send_get_request(url=f'{self.base_path}', query_params=query_params, jwt=self.passenger)
         self.assertEqual(response.status_code, 403)
 
-    def test_18_getting_users(self):
+    def test_19_getting_users(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -241,7 +249,7 @@ class UserTest(unittest.TestCase):
         response_body = response.json()
         self.assertTrue(self.__class__.user_body in response_body['results'])
 
-    def test_19_login_wrong_username(self):
+    def test_20_login_wrong_username(self):
         request_body = {
             'email': 'aaaa@gmail.com',
             'password': 'NekaSifra789'
@@ -251,7 +259,7 @@ class UserTest(unittest.TestCase):
         response_body = response.json()
         self.assertEqual(response_body['message'], 'Wrong username or password!')
 
-    def test_20_login_wrong_password(self):
+    def test_21_login_wrong_password(self):
         request_body = {
             'email': 'pera.peric123321@gmail.com',
             'password': 'NekaRandomSifra869'
@@ -261,7 +269,7 @@ class UserTest(unittest.TestCase):
         response_body = response.json()
         self.assertEqual(response_body['message'], 'Wrong username or password!')
 
-    def test_21_login_wrong_inputs(self):
+    def test_22_login_wrong_inputs(self):
         request_body = {
             'email': 'aaaa',
             'password': 'sifra'
@@ -269,7 +277,7 @@ class UserTest(unittest.TestCase):
         response = send_post_request(data=request_body, url=f'{self.base_path}/login')
         self.assertEqual(response.status_code, 400)
 
-    def test_22_login_none_inputs(self):
+    def test_23_login_none_inputs(self):
         request_body = {
             'email': None,
             'password': None
@@ -277,7 +285,7 @@ class UserTest(unittest.TestCase):
         response = send_post_request(data=request_body, url=f'{self.base_path}/login')
         self.assertEqual(response.status_code, 400)
 
-    def test_23_login(self):
+    def test_24_login(self):
         request_body = {
             'email': PASSENGER_EMAIL,
             'password': PASSENGER_PASSWORD
@@ -288,7 +296,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual('accessToken' in response_body, True)
         self.assertEqual('refreshToken' in response_body, True)
 
-    def test_24_send_message_unauthorized(self):
+    def test_25_send_message_unauthorized(self):
         request_body = {
             'message': 'Some message',
             'type': 'RIDE',
@@ -297,7 +305,7 @@ class UserTest(unittest.TestCase):
         response = send_post_request(data=request_body, url=f'{self.base_path}/{ADMIN_ID}/message')
         self.assertEqual(response.status_code, 401)
 
-    def test_25_send_message_invalid_inputs(self):
+    def test_26_send_message_invalid_inputs(self):
         request_body = {
             'message': 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij123',
             'type': 'RIDE123',
@@ -306,7 +314,7 @@ class UserTest(unittest.TestCase):
         response = send_post_request(data=request_body, url=f'{self.base_path}/{ADMIN_ID}/message', jwt=self.passenger)
         self.assertEqual(response.status_code, 400)
 
-    def test_26_send_message_none_inputs(self):
+    def test_27_send_message_none_inputs(self):
         request_body = {
             'message': None,
             'type': None,
@@ -315,7 +323,7 @@ class UserTest(unittest.TestCase):
         response = send_post_request(data=request_body, url=f'{self.base_path}/{ADMIN_ID}/message', jwt=self.passenger)
         self.assertEqual(response.status_code, 400)
 
-    def test_27_send_message_receiver_not_exist(self):
+    def test_28_send_message_receiver_not_exist(self):
         request_body = {
             'message': 'Some message',
             'type': 'RIDE',
@@ -325,7 +333,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'Receiver does not exist!')
 
-    def test_28_send_message_ride_not_exist(self):
+    def test_29_send_message_ride_not_exist(self):
         request_body = {
             'message': 'Some message',
             'type': 'RIDE',
@@ -335,7 +343,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'Ride does not exist!')
 
-    def test_29_send_message(self):
+    def test_30_send_message(self):
         request_body = {
             'message': 'Some message',
             'type': 'RIDE',
@@ -354,96 +362,96 @@ class UserTest(unittest.TestCase):
         self.__class__.message_id = response_body['id']
         self.__class__.message_body = response_body
 
-    def test_30_getting_user_messages_unauthorized(self):
+    def test_31_getting_user_messages_unauthorized(self):
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/message')
         self.assertEqual(response.status_code, 401)
 
-    def test_31_getting_user_messages_user_not_exist(self):
+    def test_32_getting_user_messages_user_not_exist(self):
         response = send_get_request(url=f'{self.base_path}/1234567/message', jwt=self.admin)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_32_getting_user_messages(self):
+    def test_33_getting_user_messages(self):
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/message', jwt=self.admin)
         self.assertEqual(response.status_code, 200)
         response_body = response.json()
         self.assertTrue(self.__class__.message_body in response_body['results'])
 
-    def test_33_block_user_unauthorized(self):
+    def test_34_block_user_unauthorized(self):
         response = send_put_request(data=None, url=f'{self.base_path}/{PASSENGER_ID}/block')
         self.assertEqual(response.status_code, 401)
 
-    def test_34_block_user_forbidden(self):
+    def test_35_block_user_forbidden(self):
         response = send_put_request(data=None, url=f'{self.base_path}/{PASSENGER_ID}/block', jwt=self.passenger)
         self.assertEqual(response.status_code, 403)
 
-    def test_35_block_user_not_exist(self):
+    def test_36_block_user_not_exist(self):
         response = send_put_request(data=None, url=f'{self.base_path}/12345678/block', jwt=self.admin)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_36_block_user(self):
+    def test_37_block_user(self):
         response = send_put_request(data=None, url=f'{self.base_path}/{PASSENGER_ID}/block', jwt=self.admin)
         self.assertEqual(response.status_code, 204)
 
-    def test_37_block_user_already_blocked(self):
+    def test_38_block_user_already_blocked(self):
         response = send_put_request(data=None, url=f'{self.base_path}/{PASSENGER_ID}/block', jwt=self.admin)
         self.assertEqual(response.status_code, 400)
         response_body = response.json()
         self.assertEqual(response_body['message'], 'User already blocked!')
 
-    def test_38_unblock_user_unauthorized(self):
+    def test_39_unblock_user_unauthorized(self):
         response = send_put_request(data=None, url=f'{self.base_path}/{PASSENGER_ID}/unblock')
         self.assertEqual(response.status_code, 401)
 
-    def test_39_unblock_user_forbidden(self):
+    def test_40_unblock_user_forbidden(self):
         response = send_put_request(data=None, url=f'{self.base_path}/{PASSENGER_ID}/unblock', jwt=self.passenger)
         self.assertEqual(response.status_code, 403)
 
-    def test_40_unblock_user_not_exist(self):
+    def test_41_unblock_user_not_exist(self):
         response = send_put_request(data=None, url=f'{self.base_path}/12345678/unblock', jwt=self.admin)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_41_unblock_user(self):
+    def test_42_unblock_user(self):
         response = send_put_request(data=None, url=f'{self.base_path}/{PASSENGER_ID}/unblock', jwt=self.admin)
         self.assertEqual(response.status_code, 204)
 
-    def test_42_unblock_user_not_blocked(self):
+    def test_43_unblock_user_not_blocked(self):
         response = send_put_request(data=None, url=f'{self.base_path}/{PASSENGER_ID}/unblock', jwt=self.admin)
         self.assertEqual(response.status_code, 400)
         response_body = response.json()
         self.assertEqual(response_body['message'], 'User is not blocked!')
 
-    def test_43_send_note_unauthorized(self):
+    def test_44_send_note_unauthorized(self):
         request_body = {
             'message': 'Some note',
         }
         response = send_post_request(data=request_body, url=f'{self.base_path}/{PASSENGER_ID}/note')
         self.assertEqual(response.status_code, 401)
 
-    def test_44_send_note_forbidden(self):
+    def test_45_send_note_forbidden(self):
         request_body = {
             'message': 'Some note',
         }
         response = send_post_request(data=request_body, url=f'{self.base_path}/{PASSENGER_ID}/note', jwt=self.passenger)
         self.assertEqual(response.status_code, 403)
 
-    def test_45_send_note_invalid_inputs(self):
+    def test_46_send_note_invalid_inputs(self):
         request_body = {
             'message': 'abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij123',
         }
         response = send_post_request(data=request_body, url=f'{self.base_path}/{PASSENGER_ID}/note', jwt=self.admin)
         self.assertEqual(response.status_code, 400)
 
-    def test_46_send_note_none_inputs(self):
+    def test_47_send_note_none_inputs(self):
         request_body = {
             'message': None
         }
         response = send_post_request(data=request_body, url=f'{self.base_path}/{PASSENGER_ID}/note', jwt=self.admin)
         self.assertEqual(response.status_code, 400)
 
-    def test_47_send_message_user_not_exist(self):
+    def test_48_send_message_user_not_exist(self):
         request_body = {
             'message': 'Some note'
         }
@@ -451,7 +459,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_48_send_note(self):
+    def test_49_send_note(self):
         request_body = {
             'message': 'Some note'
         }
@@ -465,7 +473,7 @@ class UserTest(unittest.TestCase):
         self.__class__.note_id = response_body['id']
         self.__class__.note_body = response_body
 
-    def test_49_getting_notes_unauthorized(self):
+    def test_50_getting_notes_unauthorized(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -473,7 +481,7 @@ class UserTest(unittest.TestCase):
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/note', query_params=query_params)
         self.assertEqual(response.status_code, 401)
 
-    def test_50_getting_notes_forbidden(self):
+    def test_51_getting_notes_forbidden(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -481,7 +489,7 @@ class UserTest(unittest.TestCase):
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/note', query_params=query_params, jwt=self.passenger)
         self.assertEqual(response.status_code, 403)
 
-    def test_51_getting_notes_user_not_exist(self):
+    def test_52_getting_notes_user_not_exist(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -490,7 +498,7 @@ class UserTest(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.text, 'User does not exist!')
 
-    def test_52_getting_notes(self):
+    def test_53_getting_notes(self):
         query_params = {
             'page': 1,
             'size': 1000,
@@ -499,11 +507,3 @@ class UserTest(unittest.TestCase):
         response_body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.__class__.note_body in response_body['results'], True)
-
-    def test_53_change_password_to_old_value(self):
-        request_body = {
-            'newPassword': 'NekaSifra123',
-            'oldPassword': 'NekaSifra456'
-        }
-        response = send_put_request(data=request_body, url=f'{self.base_path}/{self.__class__.user_id}/changePassword', jwt=self.passenger)
-        self.assertEqual(response.status_code, 204)
