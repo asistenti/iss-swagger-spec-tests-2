@@ -499,3 +499,11 @@ class UserTest(unittest.TestCase):
         response_body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.__class__.note_body in response_body['results'], True)
+
+    def test_53_change_password_to_old_value(self):
+        request_body = {
+            'newPassword': 'NekaSifra123',
+            'oldPassword': 'NekaSifra456'
+        }
+        response = send_put_request(data=request_body, url=f'{self.base_path}/{self.__class__.user_id}/changePassword', jwt=self.passenger)
+        self.assertEqual(response.status_code, 204)
