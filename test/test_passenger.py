@@ -150,7 +150,7 @@ class PassengerTest(unittest.TestCase):
 
     def test_05_getting_passengers_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params)
@@ -158,7 +158,7 @@ class PassengerTest(unittest.TestCase):
 
     def test_06_getting_passengers_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params, jwt=self.driver)
@@ -166,7 +166,7 @@ class PassengerTest(unittest.TestCase):
 
     def test_07_getting_passengers(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params, jwt=self.passenger)
@@ -293,7 +293,7 @@ class PassengerTest(unittest.TestCase):
 
     def test_20_getting_passenger_rides_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/ride', query_params=query_params)
@@ -301,7 +301,7 @@ class PassengerTest(unittest.TestCase):
 
     def test_21_getting_passenger_rides_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/ride', query_params=query_params, jwt=self.driver)
@@ -309,7 +309,7 @@ class PassengerTest(unittest.TestCase):
 
     def test_22_getting_passenger_rides_not_exist(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/12345679/ride', query_params=query_params, jwt=self.passenger)
@@ -318,7 +318,7 @@ class PassengerTest(unittest.TestCase):
 
     def test_23_getting_passenger_rides(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/ride', query_params=query_params, jwt=self.passenger)

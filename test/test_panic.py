@@ -85,7 +85,7 @@ class PanicTest(unittest.TestCase):
 
     def test_01_panic_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(query_params=query_params, url=f'{self.base_path}')
@@ -93,7 +93,7 @@ class PanicTest(unittest.TestCase):
 
     def test_02_panic_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(query_params=query_params, url=f'{self.base_path}', jwt=self.driver)
@@ -101,7 +101,7 @@ class PanicTest(unittest.TestCase):
 
     def test_03_panic(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(query_params=query_params, url=f'{self.base_path}', jwt=self.admin)

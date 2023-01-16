@@ -190,7 +190,7 @@ class UserTest(unittest.TestCase):
 
     def test_13_rides_of_user_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.user_id}/ride', query_params=query_params)
@@ -198,7 +198,7 @@ class UserTest(unittest.TestCase):
 
     def test_14_rides_of_user_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.user_id}/ride', query_params=query_params, jwt=self.passenger)
@@ -206,7 +206,7 @@ class UserTest(unittest.TestCase):
 
     def test_15_rides_of_user_not_exist(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/12345/ride', query_params=query_params, jwt=self.admin)
@@ -215,7 +215,7 @@ class UserTest(unittest.TestCase):
 
     def test_16_rides_of_user(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.user_id}/ride', query_params=query_params, jwt=self.admin)
@@ -225,7 +225,7 @@ class UserTest(unittest.TestCase):
     
     def test_17_getting_users_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params)
@@ -233,7 +233,7 @@ class UserTest(unittest.TestCase):
 
     def test_18_getting_users_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params, jwt=self.passenger)
@@ -241,7 +241,7 @@ class UserTest(unittest.TestCase):
 
     def test_19_getting_users(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params, jwt=self.admin)
@@ -475,7 +475,7 @@ class UserTest(unittest.TestCase):
 
     def test_50_getting_notes_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/note', query_params=query_params)
@@ -483,7 +483,7 @@ class UserTest(unittest.TestCase):
 
     def test_51_getting_notes_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/note', query_params=query_params, jwt=self.passenger)
@@ -491,7 +491,7 @@ class UserTest(unittest.TestCase):
 
     def test_52_getting_notes_user_not_exist(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/7654321/note', query_params=query_params, jwt=self.admin)
@@ -500,7 +500,7 @@ class UserTest(unittest.TestCase):
 
     def test_53_getting_notes(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{PASSENGER_ID}/note', query_params=query_params, jwt=self.admin)

@@ -183,7 +183,7 @@ class DriverTest(unittest.TestCase):
 
     def test_07_getting_drivers_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params)
@@ -191,7 +191,7 @@ class DriverTest(unittest.TestCase):
 
     def test_08_getting_drivers_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params, jwt=self.driver)
@@ -199,7 +199,7 @@ class DriverTest(unittest.TestCase):
 
     def test_09_getting_drivers(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}', query_params=query_params, jwt=self.admin)
@@ -743,7 +743,7 @@ class DriverTest(unittest.TestCase):
 
     def test_60_get_working_hours_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.available_driver_id}/working-hour', query_params=query_params)
@@ -751,7 +751,7 @@ class DriverTest(unittest.TestCase):
 
     def test_61_get_working_hours_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.available_driver_id}/working-hour', query_params=query_params, jwt=self.passenger)
@@ -759,7 +759,7 @@ class DriverTest(unittest.TestCase):
 
     def test_62_get_working_hours(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.available_driver_id}/working-hour', query_params=query_params, jwt=self.admin)
@@ -770,7 +770,7 @@ class DriverTest(unittest.TestCase):
 
     def test_63_get_working_hours_nonexisting(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/12345678/working-hour', query_params=query_params, jwt=self.admin)
@@ -799,7 +799,7 @@ class DriverTest(unittest.TestCase):
 
     def test_68_rides_of_driver_unauthorized(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.ride_body["driver"]["id"]}/ride', query_params=query_params)
@@ -807,7 +807,7 @@ class DriverTest(unittest.TestCase):
 
     def test_69_rides_of_driver_forbidden(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.ride_body["driver"]["id"]}/ride', query_params=query_params, jwt=self.passenger)
@@ -815,7 +815,7 @@ class DriverTest(unittest.TestCase):
 
     def test_70_rides_of_driver_not_exist(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/12345/ride', query_params=query_params, jwt=self.admin)
@@ -824,7 +824,7 @@ class DriverTest(unittest.TestCase):
 
     def test_71_rides_of_driver(self):
         query_params = {
-            'page': 1,
+            'page': 0,
             'size': 1000,
         }
         response = send_get_request(url=f'{self.base_path}/{self.__class__.ride_body["driver"]["id"]}/ride', query_params=query_params, jwt=self.driver_with_ride_token)
