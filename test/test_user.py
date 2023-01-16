@@ -249,7 +249,7 @@ class UserTest(unittest.TestCase):
         response = send_post_request(data=request_body, url=f'{self.base_path}/login')
         self.assertEqual(response.status_code, 400)
         response_body = response.json()
-        self.assertEqual(response_body['message'], 'Worng username or password!')
+        self.assertEqual(response_body['message'], 'Wrong username or password!')
 
     def test_20_login_wrong_password(self):
         request_body = {
@@ -259,7 +259,7 @@ class UserTest(unittest.TestCase):
         response = send_post_request(data=request_body, url=f'{self.base_path}/login')
         self.assertEqual(response.status_code, 400)
         response_body = response.json()
-        self.assertEqual(response_body['message'], 'Worng username or password!')
+        self.assertEqual(response_body['message'], 'Wrong username or password!')
 
     def test_21_login_wrong_inputs(self):
         request_body = {
