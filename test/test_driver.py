@@ -364,7 +364,7 @@ class DriverTest(unittest.TestCase):
         }
         response = send_post_request(url=f'{self.base_path}/123/documents', data=request_body, jwt=self.admin)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.text, 'Driver does not exist')
+        self.assertEqual(response.text, 'Driver does not exist!')
     
     def test_26_get_driver_documents(self):
         response = send_get_request(url=f'{self.base_path}/{self.__class__.available_driver_id}/documents', jwt=self.admin)
@@ -394,7 +394,7 @@ class DriverTest(unittest.TestCase):
     def test_31_delete_driver_document_not_found(self):
         response = send_delete_request(url=f'{self.base_path}/document/123', jwt=self.admin)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.text, 'Document does not exist')
+        self.assertEqual(response.text, 'Document does not exist!')
 
     def test_32_delete_driver_document(self):
         response = send_delete_request(url=f'{self.base_path}/document/{self.__class__.driver_document_id}', jwt=self.admin)
@@ -689,7 +689,7 @@ class DriverTest(unittest.TestCase):
         response = send_post_request(url=f'{self.base_path}/{self.__class__.available_driver_id}/working-hour', data=request_body, jwt=self.__class__.available_driver_token)
         self.assertEqual(response.status_code, 400)
         response_body = response.json()
-        self.assertEqual(response_body['message'], 'Shifth already ongoing!')
+        self.assertEqual(response_body['message'], 'Shift already ongoing!')
 
     def test_54_change_working_hour_unauthorized(self):
         request_body = {
@@ -795,7 +795,7 @@ class DriverTest(unittest.TestCase):
     def test_67_get_working_hour_details_nonexisting(self):
         response = send_get_request(url=f'{self.base_path}/working-hour/12345678', jwt=self.admin)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.text, 'Working hout does not exist!')
+        self.assertEqual(response.text, 'Working hour does not exist!')
 
     def test_68_rides_of_driver_unauthorized(self):
         query_params = {
