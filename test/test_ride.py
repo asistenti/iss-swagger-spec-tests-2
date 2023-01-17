@@ -15,7 +15,14 @@ class RideTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        response = send_get_request(url=f'http://localhost:{PORT}/api/passenger/{PASSENGER_ID}')
+        admin_login_data = {
+            'email': ADMIN_EMAIL,
+            'password': ADMIN_PASSWORD
+        }
+        response = send_post_request(data=admin_login_data, url=f'http://localhost:{PORT}/api/user/login')
+        admin = response.json()['accessToken']
+        time.sleep(1)
+        response = send_get_request(url=f'http://localhost:{PORT}/api/passenger/{PASSENGER_ID}', jwt=admin)
         response_body = response.json()
         cls.user_id = response_body['id']
         cls.user_body = response_body

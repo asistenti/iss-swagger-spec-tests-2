@@ -18,17 +18,17 @@ class UserTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        response = send_get_request(url=f'http://localhost:{PORT}/api/passenger/{PASSENGER_ID}')
-        response_body = response.json()
-        cls.user_id = response_body['id']
-        cls.user_body = response_body
-        time.sleep(1)
         passenger_login_data = {
             'email': PASSENGER_EMAIL,
             'password': PASSENGER_PASSWORD
         }
         response = send_post_request(data=passenger_login_data, url=f'http://localhost:{PORT}/api/user/login')
         passenger = response.json()['accessToken']
+        time.sleep(1)
+        response = send_get_request(url=f'http://localhost:{PORT}/api/passenger/{PASSENGER_ID}', jwt=passenger)
+        response_body = response.json()
+        cls.user_id = response_body['id']
+        cls.user_body = response_body
         time.sleep(1)
         request_body = {
             'locations': [
